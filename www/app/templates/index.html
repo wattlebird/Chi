@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="jumbotron">
+  <h1>Chi <small>Future Bangumi laboratory</small></h1>
+  <p>Chi 是一个致力于机器学习实验的个人项目。该项目拥有者为 bgmer <a href="http://chii.in/user/wattlebird">Genius、小乖</a>。该项目将利用当前成熟的机器学习研究成果为 bgmer 带来更好的社区用户体验。</p>
+  <p><a class="btn btn-primary btn-lg" href="{{ url_for('about') }}" role="button">了解更多……</a></p>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <h1>同步率・改</h2>
+          <p>利用您的收藏和评分信息为您寻找 bgm 同好，查看您与您好友之间的同步率。</p>
+          <p><a class="btn btn-primary" href="#" role="button">了解更多……</a></p>
+    </div>
+    <div class="col-md-4">
+          <h2>快将推出……</h2>
+          <p><a class="btn btn-default" href="#" disabled="disabled" role="button">了解更多……</a></p>
+    </div>
+    <div class="col-md-4">
+          <h2>快将推出……</h2>
+          <p><a class="btn btn-default" href="#" disabled="disabled" role="button">了解更多……</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Chi: Future Bangumi Laboratory</title>
+    <meta name="author" content="Ronnie WANG">
+    <meta name="description" content="Future Bangumi laboratory">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('.static',filename='style.css') }}">
+    <!-- OpenGraph-->
+  </head>
+  <body>
+        <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            </button>
+            <a href="{{ url_for('index') }}" class="navbar-brand">Chi</a>
+          </div>
+          <div class="collapse navbar-collapse" id="navbar">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="{{ url_for('similarity') }}">Sync Rate</a></li>
+              <li><a href="{{ url_for('about') }}">About</a></li>
+            </ul>
+          </div>
+          </div>
+        </nav>
+        <div class="container">
+          {% block content %}{% endblock %}
+        </div>
+        <footer>
+        <div class="container">
+          <p class="text-muted">© 2015 Ronnie Wang avec l'aide de <a target="_blank" href="http://getbootstrap.com/">Bootstrap</a>.</p>
+        </div>
+        </footer>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <!-- Google Analysis-->
+    </div>
+  </body>
+</html>
