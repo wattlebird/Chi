@@ -1,0 +1,2 @@
+# Chi
+Future Bangumi Laboratory
