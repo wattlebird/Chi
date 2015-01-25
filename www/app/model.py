@@ -3,9 +3,9 @@ from app import db
 class UserInfo(db.Model):
     __tablename__ = 'userinfo'
 
-    name = Column(String(30), primary_key=True)
-    index = Column(Integer)
-    count = Column(Integer)
+    name = db.Column(db.String(30), primary_key=True)
+    index = db.Column(db.Integer)
+    count = db.Column(db.Integer)
 
     def __repr__(self):
        return "<userinfo(name='%s')>" % (self.name)

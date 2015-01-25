@@ -1,15 +1,14 @@
 from app import db
 from model import UserInfo
 import pickle
-from exception import Exception
-from numpy import dot, sqrt
-from numpy.linalg import norm
 from random import seed, randint
+from heapq import nlargest
 
 seed()
 
 fr = open('dat/a.dat','rb')
 U = pickle.load(fr) # a user_num x 100 mat
+unorm = pickle.load(fr)
 fr.close()
 
 class QueryError(Exception):
@@ -45,25 +44,40 @@ class DUser:
 def qualified(db, username):
     q=UserInfo.query.filter_by(name=username).first()
     # q=db.session.query(UserInfo.name, UserInfo.count).filter(UserInfo.name=username).first()
-    return q.count>0
+    if q and q.count:
+        return 1
+    elif q:
+        return 0
+    else:
+        return -1
+
 
 def similarlist(db, username):
     q=UserInfo.query.filter_by(name=username).first()
     if q is None:
         raise QueryError(username)
-    u=U[q.index,:]
-    simv=dot(U,u.T)
-    unorm = norm(U,axis=1)
+    simv=U.dot(U[q.index,:].T).toarray()
     qlist=[]
     for i in xrange(U.shape[0]):
         qlist.append(DUser(id=i,
         sim=simv[i][0]/(unorm[q.index]*unorm[i])))
-    slist=_pick_top(qlist)
+    slist=nlargest(11,qlist)
     rlist=[]
     for i in xrange(1,11):
         q=UserInfo.query.filter_by(index=slist[i].id).first()
-        rlist.append((q.name,_normalize(slist[i].sim)))
+        rlist.append((q.name,round(_normalize(slist[i].sim),4)))
     return rlist
+
+def getsim(db, username, candidate):
+    q=UserInfo.query.filter_by(name=username).first()
+    if q is None:
+        raise QueryError(username)
+    u=U[q.index,:]
+    p=UserInfo.query.filter_by(name=candidate).first()
+    if p is None:
+        raise QueryError(username)
+    v=U[p.index,:]
+    return _normalize(u.dot(v.T).toarray()[0][0]/(unorm[q.index]*unorm[p.index]))
 
 def _pick_top_ten(qlist):
     _qpick_ten(qlist,0,len(qlist))

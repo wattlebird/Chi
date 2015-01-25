@@ -13,4 +13,5 @@ def validateform(username):
                 return None
         if not re.match(r'^[^_][a-zA-Z0-9_].',username):
             return None
-        else return username
+        else:
+            return username

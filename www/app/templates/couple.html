@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" data="{{ username }}" class="userlink">&commat;{{ username }}</a>! 你与 <a href="http://chii.in/user/{{ candidate }}" data="{{ candidate }} " class="userlink">&commat;{{ candidate }}</a> 的同步率如下：</h3>
+  <div class="row">
+    <div class="col-sm-2" data="{{ candidate }}" class="userblock">
+      <a href="http://chii.in/user/{{ candidate }}" class="pull-right">&commat;{{ candidate }}</a><span></span>
+    </div>
+    <div class="col-sm-8">
+      <div class="progress">
+      {% if similarity>0.95 %}
+        <div class="progress-bar  progress-bar-danger progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
+          {{ similarity*100 }}%
+        </div>
+      {% elif similarity>0.8 %}
+        <div class="progress-bar  progress-bar-warning progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
+          {{ similarity*100 }}%
+        </div>
+      {% else %}
+        <div class="progress-bar  progress-bar-info progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
+          {{ similarity*100 }}%
+        </div>
+      {% endif %}
+      </div>
+    </div>
+    <div class="col-sm-2" data="{{ username }}" class="userblock">
+      <a href="http://chii.in/user/{{ username }}">&commat;{{ username }}</a><span></span>
+    </div>
+  </div>
+  <div class="row">
+  <div class="col-sm-offset-9 col-sm-3" id="sharebtn">
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了自己和其他 BGMer 的同步率！你也快来试试吧！" data-via="wattlebird_01">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+    <!-- Place this tag where you want the +1 button to render. -->
+    <div class="g-plusone" data-size="medium"></div>
+
+    <!-- Place this tag after the last +1 button tag. -->
+    <script type="text/javascript">
+      (function() {
+        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+        po.src = 'https://apis.google.com/js/platform.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+    </script>
+  </div>
+  </div>
+{% endblock %}

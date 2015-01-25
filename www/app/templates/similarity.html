@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1 id="sim-title">同步率・改</h1>
+<div class="col-sm-offset-2" id="sim-info">
+  <p>以您在 Bangumi 的作品收藏和评分信息为依据，用前沿的算法计算出您与其他 BGMer 的更加准确的同步率。</p>
+</div>
+{% if error %}
+<div class="alert alert-warning alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong>注意！</strong> {{ error }}
+</div>
+{% endif%}
+ <form class="form-horizontal" role="form" method="post">
+  <div class="form-group">
+    <label class="control-label col-sm-offset-1 col-sm-2" for="email">用户名：</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="username" name="username" placeholder="您在 Bangumi 的用户名，或直接粘贴您的 Bangumi 时光机主页地址（如 http://chii.in/user/sai）！">
+    </div>
+  </div>
+  <div class="form-group collapse" id="candidate-panel">
+    <label class="control-label col-sm-offset-1 col-sm-2" for="email">基／姬友用户名：</label>
+    <div class="col-sm-8">
+      <input type="text" class="form-control" id="candidate" name="candidate">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-3 col-sm-1">
+      <button type="submit" class="btn btn-default">Submit</button>
+    </div>
+    <div class="col-sm-7">
+      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#candidate-panel">想查看和某个指定的 BGMer 的同步率？</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

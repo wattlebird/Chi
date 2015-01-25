@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" data="{{ username }}" class="userlink">&commat;{{ username }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
+  {% for x in simlist %}
+  <div class="row">
+    <div class="col-sm-2" data="{{ x[0] }}" class="userblock">
+      <a href="{{ url_for('user', username=username, candidate=x[0]) }}" class="pull-right">&commat;{{ x[0] }}</a><span></span>
+    </div>
+    <div class="col-sm-7">
+      <div class="progress">
+      {% if x[1]>0.95 %}
+        <div class="progress-bar  progress-bar-danger progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
+          {{ x[1]*100 }}%
+        </div>
+      {% elif x[1]>0.8 %}
+        <div class="progress-bar  progress-bar-warning progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
+          {{ x[1]*100 }}%
+        </div>
+      {% else %}
+        <div class="progress-bar  progress-bar-info progress-bar-striped active" role="progressbar"
+          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
+          {{ x[1]*100 }}%
+        </div>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="row">
+  <div class="col-sm-offset-9 col-sm-3" id="sharebtn">
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了与自己同步率最高的十位 ACG 同好！你也快来试试吧！" data-via="wattlebird_01">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+    <!-- Place this tag where you want the +1 button to render. -->
+    <div class="g-plusone" data-size="medium"></div>
+
+    <!-- Place this tag after the last +1 button tag. -->
+    <script type="text/javascript">
+      (function() {
+        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+        po.src = 'https://apis.google.com/js/platform.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+    </script>
+  </div>
+  </div>
+{% endblock %}
