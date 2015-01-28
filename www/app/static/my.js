@@ -10,5 +10,8 @@
                 $(this).children("img").attr("src", res.avatar.large);
             });
         });
+        $("#candidate-switch").click(function (){
+            $(this).hide()
+        })
     });
 })();

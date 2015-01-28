@@ -8,7 +8,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('.static',filename='style.css') }}">
     <link href='http://fonts.googleapis.com/css?family=Poiret+One|Righteous' rel='stylesheet' type='text/css'>
+    <!-- G+ -->
+    <script src="https://apis.google.com/js/platform.js" async defer>
+      {lang: 'zh-CN'}
+    </script>
+    <!-- SinaWeibo -->
+    <html xmlns:wb="http://open.weibo.com/wb">
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
     <!-- OpenGraph-->
+    <meta property="og:title" content="Chi: Bangumi 未来实验室"/>
+    <meta property="og:url" content="{{ url_for('index') }}" />
+    <meta property="og:description"  content="致力于提升 BGMer 社交体验的实验项目。通过查找与同伴的同步率早日___，找到___。" />
+
   </head>
   <body>
         <nav role="navigation" class="navbar navbar-default navbar-fixed-top">
@@ -42,7 +53,7 @@
 
     <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-    <!--<script type="text/javascript" src="{{ url_for('.static', filename='my.js') }}"></script>-->
+    <script type="text/javascript" src="{{ url_for('.static', filename='my.js') }}"></script>
     <!-- Google Analysis-->
   </body>
 </html>

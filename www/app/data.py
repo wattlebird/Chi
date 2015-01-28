@@ -77,7 +77,33 @@ def getsim(db, username, candidate):
     if p is None:
         raise QueryError(username)
     v=U[p.index,:]
-    return _normalize(u.dot(v.T).toarray()[0][0]/(unorm[q.index]*unorm[p.index]))
+    return round(_normalize(u.dot(v.T).toarray()[0][0]/(unorm[q.index]*unorm[p.index])),4)
+
+def getrank(db, username, candidate):
+    q=UserInfo.query.filter_by(name=username).first()
+    if q is None:
+        raise QueryError(username)
+    simv=U.dot(U[q.index,:].T).toarray()
+    qlist=[]
+    for i in xrange(U.shape[0]):
+        qlist.append(DUser(id=i,
+        sim=simv[i][0]/(unorm[q.index]*unorm[i])))
+    p=UserInfo.query.filter_by(name=candidate).first()
+    if p is None:
+        raise QueryError(username)
+    return _rank(qlist,p.index)
+
+def _rank(a, i):
+    b=0
+    e=len(a)
+    a[b],a[i]=a[i],a[b]
+    i=j=1
+    while i!=e:
+        if a[b]<a[i]:
+            a[i],a[j]=a[j],a[i]
+            j+=1
+        i+=1
+    return j-1
 
 def _pick_top_ten(qlist):
     _qpick_ten(qlist,0,len(qlist))

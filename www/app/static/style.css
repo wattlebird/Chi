@@ -48,6 +48,7 @@ body {
 
 #sharebtn {
     display: inline-block;
+    margin-top: 20px;
 }
 
 #title {

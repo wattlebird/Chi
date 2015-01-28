@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.cors import cross_origin
-from app import app, db
+from app import app, db, cors
 from util import validateform
-from data import qualified, similarlist, getsim
+from data import qualified, similarlist, getsim, getrank
 
 db.create_all()
 
@@ -55,7 +55,9 @@ def user(username):
         candidate = request.args['candidate']
         if qualified(db, candidate)==1:
             sim = getsim(db, username, candidate)
-            return render_template('couple.html',username=username, candidate=candidate, similarity=sim)
+            rank = getrank(db, username, candidate)
+            rp=round((1-rank/50362.)*100, 4)
+            return render_template('couple.html',username=username, candidate=candidate, similarity=sim, rank=rank, rankpercent=rp)
         elif qualified(db, candidate)==0:
             return render_template('couple.html',username=username, candidate=candidate, similarity=0)
         else:
