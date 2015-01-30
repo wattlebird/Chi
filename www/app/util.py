@@ -6,7 +6,7 @@ def validateform(username):
     if username==None:
         return None
     else:
-        if username.startswith('http://'):
+        if username.startswith('http://') or username.startswith('https://'):
             try:
                 username = urlparse(username).path.split('/')[-1]
             except IndexError:

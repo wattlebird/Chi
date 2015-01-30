@@ -1,10 +1,11 @@
-from app import db
+from app import db, cache
 from model import UserInfo
 import pickle
 from random import seed, randint
 from heapq import nlargest
 
 seed()
+cache.clear()
 
 fr = open('dat/a.dat','rb')
 U = pickle.load(fr) # a user_num x 100 mat
@@ -40,7 +41,7 @@ class DUser:
     def __ge__(self, other):
         return self.sim>=other.sim
     
-
+@cache.memoize(timeout=600)
 def qualified(db, username):
     q=UserInfo.query.filter_by(name=username).first()
     # q=db.session.query(UserInfo.name, UserInfo.count).filter(UserInfo.name=username).first()
@@ -51,7 +52,7 @@ def qualified(db, username):
     else:
         return -1
 
-
+@cache.memoize(timeout=600)
 def similarlist(db, username):
     q=UserInfo.query.filter_by(name=username).first()
     if q is None:
@@ -68,6 +69,7 @@ def similarlist(db, username):
         rlist.append((q.name,round(_normalize(slist[i].sim),4)))
     return rlist
 
+@cache.memoize(timeout=600)
 def getsim(db, username, candidate):
     q=UserInfo.query.filter_by(name=username).first()
     if q is None:
@@ -79,19 +81,21 @@ def getsim(db, username, candidate):
     v=U[p.index,:]
     return round(_normalize(u.dot(v.T).toarray()[0][0]/(unorm[q.index]*unorm[p.index])),4)
 
+@cache.memoize(timeout=600)
 def getrank(db, username, candidate):
     q=UserInfo.query.filter_by(name=username).first()
     if q is None:
         raise QueryError(username)
     simv=U.dot(U[q.index,:].T).toarray()
-    qlist=[]
-    for i in xrange(U.shape[0]):
-        qlist.append(DUser(id=i,
-        sim=simv[i][0]/(unorm[q.index]*unorm[i])))
     p=UserInfo.query.filter_by(name=candidate).first()
     if p is None:
         raise QueryError(username)
-    return _rank(qlist,p.index)
+    cnt=0
+    candidatesim = simv[p.index][0]/(unorm[q.index]*unorm[p.index])
+    for i in xrange(U.shape[0]):
+        if candidatesim<simv[i][0]/(unorm[q.index]*unorm[i]):
+            cnt+=1
+    return cnt
 
 def _rank(a, i):
     b=0

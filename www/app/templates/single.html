@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<h1 id="sim-title">同步率・改</h1>
 <h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" data="{{ username }}" class="userlink">&commat;{{ username }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
   {% for x in simlist %}
   <div class="row">
@@ -35,8 +36,15 @@
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
     <div class="g-plusone" data-size="medium"></div>
+    <!-- G+ -->
+    <script src="https://apis.google.com/js/platform.js" async defer>
+      {lang: 'zh-CN'}
+    </script>
 
+    <html xmlns:wb="http://open.weibo.com/wb">
     <wb:share-button addition="number" type="button" ralateUid="1932009591" default_text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了与自己同步率最高的十位 ACG 同好！你也快来试试吧！" picture_search="false"></wb:share-button>
+
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
   </div>
   </div>
 {% endblock %}

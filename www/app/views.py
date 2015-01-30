@@ -18,8 +18,8 @@ def about():
 @app.route('/similarity/', methods=['POST', 'GET'])
 def similarity():
     if request.method=='POST':
-        username = request.form.get('username')
-        candidate = request.form.get('candidate')
+        username = request.form.get('username').strip()
+        candidate = request.form.get('candidate').strip()
         if not validateform(username):
             return render_template('similarity.html', error=u'请输入正确的用户名或时光机 URL！')
         
