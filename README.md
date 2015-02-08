@@ -2,16 +2,13 @@
 
 Future Bangumi Laboratory
 
-## Schedule
+## Development log
 
-| Task                                                                                          | Deadline  | Status   |
-| ------                                                                                        | --------- | -------- |
-| Picking Utiliary Matrix. Mapping between username and row index, valid subject and col index. | 22nd Jan  | Finished |
-| Fast picking top 10 users.                                                                    | 23rd Jan  | Finished |
-| Design similarity page.                                                                       | 25th Jan  | Finished |
-| Deploying.                                                                                    | 26th Jan  | Finished |
-| Enable CORS.                                                                                  | 31st Jan  | Finished |
-| Google +1 Problem.                                                                            | 31st Jan  |          |
-| OpenGraph.                                                                                    | 31st Jan  | Finished |
-| Cache | 30th Jan | Finished |
+31/01/2015 Version 0.2 online.
+08/02/2015 Switch from global-centered to user-centered.
 
+## Wish list
+
+* Preferred item feedback
+* Linear model refinement (please be specific)
+* Statistical diagram

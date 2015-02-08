@@ -1,5 +1,7 @@
 import re
 from urlparse import urlparse
+import requests # Yes, you need to install that
+from app import cache
 
 def validateform(username):
 
@@ -15,3 +17,8 @@ def validateform(username):
             return None
         else:
             return username
+
+@cache.memoize(timeout=172800)
+def getnickname(username):
+    r = requests.get("http://api.bgm.tv/user/"+username)
+    return r.json()['nickname']

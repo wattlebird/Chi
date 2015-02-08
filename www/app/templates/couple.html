@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" data="{{ username }}" class="userlink">&commat;{{ username }}</a>! 你与 <a href="http://chii.in/user/{{ candidate }}" data="{{ candidate }} " class="userlink">&commat;{{ candidate }}</a> 的同步率如下：</h3>
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ nickname[username] }}</a>! 你与 <a href="http://chii.in/user/{{ candidate }}" class="userlink">{{ nickname[candidate] }}</a> 的同步率如下：</h3>
   <div class="row">
     <div class="col-sm-2" data="{{ candidate }}" class="userblock">
-      <a href="http://chii.in/user/{{ candidate }}" class="pull-right">&commat;{{ candidate }}</a><span></span>
+      <a href="http://chii.in/user/{{ candidate }}" class="pull-right">{{ nickname[candidate] }}</a><span></span>
     </div>
     <div class="col-sm-8">
       <div class="progress">
@@ -27,16 +27,30 @@
       </div>
     </div>
     <div class="col-sm-2" data="{{ username }}" class="userblock">
-      <a href="http://chii.in/user/{{ username }}">&commat;{{ username }}</a><span></span>
+      <a href="http://chii.in/user/{{ username }}">{{ nickname[username] }}</a><span></span>
     </div>
   </div>
   {% if rank %}
-  <p>&commat;{{ candidate }} 在 &commat;{{ username }} 和全站有收藏条目的 BGMer 同步率中排名处于排名第<span class='lead'> {{ rank }} </span>位的位置，超过了{{ rankpercent }}% 的 BGMer！（喂</p>
+  <p>{{ nickname[candidate] }} 在 {{ nickname[username] }} 和全站有收藏条目的 BGMer 同步率中排名处于排名第<span class='lead'> {{ rank }} </span>位的位置，超过了 {{ rankpercent }}% 的 BGMer！</p>
+  
   <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
   <div class="progress">
         <div class="progress-bar  progress-bar-danger" role="progressbar"
           aria-valuenow="{{ rankpercent }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ rankpercent }}%">
+          {{ rankpercent }}%
+        </div>
+  </div>
+  </div>
+  </div>
+
+  <p>与此同时，{{ nickname[username] }} 在 {{ nickname[candidate] }} 的全站有收藏条目的用户同步率排名中名列第<span class='lead'> {{ inverserank }} </span>位，击败了 {{ inverserankpercent }}% 的基／姬友！（喂</p>
+
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-8">
+  <div class="progress">
+        <div class="progress-bar  progress-bar-danger" role="progressbar"
+          aria-valuenow="{{ inverserankpercent }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ inverserankpercent }}%">
           {{ rankpercent }}%
         </div>
   </div>
