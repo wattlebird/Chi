@@ -1,5 +1,5 @@
 from settings import *
-from sqlalchemy import create_engine, Column, Integer, String, Date, Text, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.sql.expression import func
@@ -44,6 +44,9 @@ class UserInfo(Base):
     name = Column(String(30), primary_key=True)
     index = Column(Integer)
     count = Column(Integer)
+    ratecount = Column(Integer)
+    average = Column(Float)
+    sd = Column(Float)
 
     def __repr__(self):
        return "<UserInfo(name='%s')>" % (
@@ -65,5 +68,5 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 if __name__=='__main__':
-    print session.query(func.avg(Record.rate).label('averate')).\
-        filter(Record.rate != None, Record.typ=='anime').scalar()
+    print session.query(func.avg(Record.rate).label('average')).\
+    filter(Record.rate != None).scalar();

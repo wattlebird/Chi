@@ -60,3 +60,6 @@ target/
 
 # Virtual environment
 ve/
+
+#ipython
+*.ipy*

@@ -46,7 +46,7 @@ body {
     font-family: 'Poiret One', cursive;
 }
 
-#sharebtn {
+.sharegrp {
     display: inline-block;
     margin-top: 20px;
 }

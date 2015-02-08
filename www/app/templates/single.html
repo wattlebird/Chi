@@ -2,11 +2,11 @@
 
 {% block content %}
 <h1 id="sim-title">同步率・改</h1>
-<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" data="{{ username }}" class="userlink">&commat;{{ username }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ nickname[username] }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
   {% for x in simlist %}
   <div class="row">
     <div class="col-sm-2" data="{{ x[0] }}" class="userblock">
-      <a href="{{ url_for('user', username=username, candidate=x[0]) }}" class="pull-right">&commat;{{ x[0] }}</a><span></span>
+      <a href="{{ url_for('user', username=username, candidate=x[0]) }}" class="pull-right">{{ nickname[x[0]] }}</a><span></span>
     </div>
     <div class="col-sm-7">
       <div class="progress">
@@ -17,6 +17,11 @@
         </div>
       {% elif x[1]>0.8 %}
         <div class="progress-bar  progress-bar-warning" role="progressbar"
+          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
+          {{ x[1]*100 }}%
+        </div>
+      {% elif x[1]<0.5 %}
+        <div class="progress-bar  progress-bar-success" role="progressbar"
           aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
           {{ x[1]*100 }}%
         </div>
@@ -31,20 +36,42 @@
   </div>
   {% endfor %}
   <div class="row">
-  <div class="col-sm-offset-9 col-sm-3" id="sharebtn">
+  <div class="col-sm-offset-6 col-sm-2 sharegrp">
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#bgmshare">
+      生成 Bangumi 分享文本
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="bgmshare" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            我，{{ nickname[username] }}，在 [url={{ request.url }}]Chi[/url] 中找到的同步率最高的十位 BGMer 如下：<br/>
+            {% for x in simlist %}
+            @{{ x[0] }} {{ x[1]*100 }}%<br/>
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4 sharegrp">
     <a href="https://twitter.com/share" class="twitter-share-button" data-text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了与自己同步率最高的十位 ACG 同好！你也快来试试吧！" data-via="wattlebird_01">Tweet</a>
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+    <html xmlns:wb="http://open.weibo.com/wb">
+    <wb:share-button addition="number" type="button" ralateUid="1932009591" default_text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了与自己同步率最高的十位 ACG 同好！你也快来试试吧！" picture_search="false"></wb:share-button>
+
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
 
     <div class="g-plusone" data-size="medium"></div>
     <!-- G+ -->
     <script src="https://apis.google.com/js/platform.js" async defer>
       {lang: 'zh-CN'}
     </script>
-
-    <html xmlns:wb="http://open.weibo.com/wb">
-    <wb:share-button addition="number" type="button" ralateUid="1932009591" default_text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了与自己同步率最高的十位 ACG 同好！你也快来试试吧！" picture_search="false"></wb:share-button>
-
-    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
   </div>
   </div>
 {% endblock %}
