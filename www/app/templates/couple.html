@@ -18,6 +18,11 @@
           aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
           {{ similarity*100 }}%
         </div>
+      {% elif similarity<0.5 %}
+        <div class="progress-bar  progress-bar-success" role="progressbar"
+          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
+          {{ similarity*100 }}%
+        </div>
       {% else %}
         <div class="progress-bar  progress-bar-info" role="progressbar"
           aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
