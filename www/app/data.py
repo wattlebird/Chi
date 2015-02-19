@@ -12,11 +12,8 @@ U = pickle.load(fr) # a user_num x 100 mat
 unorm = pickle.load(fr)
 fr.close()
 
-class QueryError(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return "Query Error: failed to get wanted item "+repr(self.value)
+#for i in xrange(len(unorm)):
+#    unorm[i]+=1
 
 class DUser:
     def __init__(self, id, sim):
@@ -55,8 +52,6 @@ def qualified(db, username):
 @cache.memoize(timeout=600)
 def similarlist(db, username):
     q=UserInfo.query.filter_by(name=username).first()
-    if q is None:
-        raise QueryError(username)
     simv=U.dot(U[q.index,:].T).toarray()
     qlist=[]
     for i in xrange(U.shape[0]):
@@ -72,29 +67,23 @@ def similarlist(db, username):
 @cache.memoize(timeout=600)
 def getsim(db, username, candidate):
     q=UserInfo.query.filter_by(name=username).first()
-    if q is None:
-        raise QueryError(username)
     u=U[q.index,:]
     p=UserInfo.query.filter_by(name=candidate).first()
-    if p is None:
-        raise QueryError(username)
     v=U[p.index,:]
     return round(_normalize(u.dot(v.T).toarray()[0][0]/(unorm[q.index]*unorm[p.index])),4)
 
 @cache.memoize(timeout=600)
 def getrank(db, username, candidate):
     q=UserInfo.query.filter_by(name=username).first()
-    if q is None:
-        raise QueryError(username)
     simv=U.dot(U[q.index,:].T).toarray()
     p=UserInfo.query.filter_by(name=candidate).first()
-    if p is None:
-        raise QueryError(username)
     cnt=0
     candidatesim = simv[p.index][0]/(unorm[q.index]*unorm[p.index])
     for i in xrange(U.shape[0]):
         if candidatesim<simv[i][0]/(unorm[q.index]*unorm[i]):
             cnt+=1
+    raise Exception
+    
     return cnt
 
 def _rank(a, i):

@@ -13,3 +13,11 @@ class UserInfo(db.Model):
     def __repr__(self):
        return "<userinfo(name='%s')>" % (self.name)
 
+class ItemInfo(db.Base):
+    __tablename__='iteminfo'
+    i_index = db.Column(db.Integer, primary_key=True)
+    index = db.Column(db.Integer)
+
+    def __repr__(self):
+        return "<ItemInfo(item_id='%s')>" % (
+                self.i_index)

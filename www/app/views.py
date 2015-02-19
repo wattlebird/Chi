@@ -5,8 +5,6 @@ from app import app, db, cors
 from util import validateform, getnickname
 from data import qualified, similarlist, getsim, getrank
 
-db.create_all()
-
 @app.route('/')
 def index():
     return render_template("index.html");
