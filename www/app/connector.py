@@ -1,5 +1,3 @@
-from model import UserInfo
-from model import ItemInfo
 from dbcom import Connector
 from datacenter import DataCenter 
 
@@ -9,13 +7,17 @@ class Controller:
         self.com = Connector()
         self.data = DataCenter()
 
-    def GetTopRank(self, username, typ):
+    def UserExist(self, username):
+        return self.com.CheckUserexists(username)
+
+    def UserRecords(self, username):
+        return not self.com.CheckUid(username) is None
+
+    def GetTopRank(self, username, typ, acl):
         uid = self.com.CheckUid(username);
-        if typ==0:
-            lst = self.data.TopRank(uid)
-        else:
-            maskItem = self.com.GetItemMask(typ);
-            lst = self.data.TopRank(uid, itemmask = maskItem)
+        maskItem = self.com.GenerateItemMask(typ);
+        maskUser = self.com.GenerateUserMask(typ, acl);
+        lst = self.data.TopRank(uid, maskItem, maskUser)
         
         rtn = [];
         for x in lst:
@@ -33,22 +35,18 @@ class Controller:
         unb = self.com.CheckNickname(ub);
         uida = self.com.CheckUid(ua);
         uidb = self.com.CheckUid(ub);
-        if typ==0:
-            maskItem = None;
-        else:
-            maskItem = self.com.GetItemMask(typ);
+        maskItem = self.com.GenerateItemMask(typ);
+        maskUser = self.com.GenerateUserMask(typ);
         sim = self.data.GetSimilarity(uida, uidb, maskItem)
         pr = DataCenter.Normalize(sim)
-        ra = self.data.GetRankOf(uida, uidb, maskItem) # From A's view, B's rank
-        rb = self.data.GetRankOf(uidb, uida, maskItem) # From B's view, A's rank
+        ra = self.data.GetRankOf(uida, uidb, sim, maskItem, maskUser) # From A's view, B's rank
+        rb = self.data.GetRankOf(uidb, uida, sim, maskItem, maskUser) # From B's view, A's rank
         return (una, unb, pr, ra, rb)
 
     def GetFeedback(self, ua, ub, typ):
-        if typ==0:
-            maskItem = None;
-        else:
-            maskItem = self.com.GetItemMask(typ);
-        lst = self.data.GetPosItem(ua, ub, maskItem)
+        maskItem = self.com.GenerateItemMask(typ);
+        maskUser = self.com.GenerateUserMask(typ);
+        lst = self.data.GetPosItem(ua, ub, maskItem, maskUser)
         rtn = [];
         for x in lst:
             iid = self.com.CheckItemid(x)
@@ -57,11 +55,9 @@ class Controller:
         return rtn;
 
     def GetNegFeedback(self, ua, ub, typ):
-        if typ==0:
-            maskItem = None;
-        else:
-            maskItem = self.com.GetItemMask(typ);
-        lst = self.data.GetNegItem(ua, ub, maskItem)
+        maskItem = self.com.GenerateItemMask(typ);
+        maskUser = self.com.GenerateUserMask(typ);
+        lst = self.data.GetNegItem(ua, ub, maskItem, maskUser)
         rtn = [];
         for x in lst:
             iid = self.com.CheckItemid(x)

@@ -22,3 +22,12 @@ def validateform(username):
 def getnickname(username):
     r = requests.get("http://api.bgm.tv/user/"+username)
     return r.json()['nickname']
+
+@cache.memoize(timeout=172800)
+def getitemname(itemidx):
+    r = requests.get("http://api.bgm.tv/subject/"+str(itemidx))
+    j = r.json()
+    if len(j['name_cn']):
+        return j['name_cn']
+    else:
+        return j['name']
