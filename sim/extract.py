@@ -1,3 +1,4 @@
+# Extract UserInfo and ItemInfo
 from fetch import session, Base, engine, Users, Record, UserInfo, ItemInfo
 from sqlalchemy.sql.expression import func
 import numpy as np
@@ -26,12 +27,12 @@ for usr in session.query(Users.name).order_by(Users.uid).all():
 session.commit()
 nUsers=cnt+1
 
-#cnt=0;
-#for rec in session.query(Record.iid).group_by(Record.iid).order_by(Record.iid).all():
-#    itm = ItemInfo(i_index=rec.iid, index=cnt)
-#    session.add(itm)
-#    cnt+=1
-#session.commit()
-#nItms = cnt+1
+cnt=0;
+for rec in session.query(Record.iid).group_by(Record.iid).order_by(Record.iid).all():
+    itm = ItemInfo(i_index=rec.iid, index=cnt)
+    session.add(itm)
+    cnt+=1
+session.commit()
+nItms = cnt+1
 
 # After that, you can check your database, and try to index some columns

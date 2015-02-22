@@ -1,3 +1,4 @@
+# Construct utiliary mtx
 import numpy as np
 from scipy import sparse
 from fetch import session, Base, engine, Users, Record, UserInfo, ItemInfo
