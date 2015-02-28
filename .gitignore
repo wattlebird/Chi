@@ -56,6 +56,7 @@ target/
 # Data
 *.dat
 *.sql
+*.hdf5
 
 # Virtual environment
 ve/
