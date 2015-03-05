@@ -19,8 +19,8 @@ tp='anime'
 #fr.close()
 fr = open('dat/training-'+tp+'.dat','rb')
 S = cPickle.load(fr)
-St = cPickle.load(fr)
-Sv = cPickle.load(fr)
+#St = cPickle.load(fr)
+#Sv = cPickle.load(fr)
 States = cPickle.load(fr)
 Bu = cPickle.load(fr)
 Bi = cPickle.load(fr)
@@ -60,8 +60,8 @@ def derivative1(S):
         s = States[I[i],J[i]]
         dU[I[i],:]+=-2*(S[I[i],J[i]]-U[I[i],:].dot(Vt[:,J[i]])-Bu[I[i],s]-Bi[J[i],s])*Vt[:,J[i]].T
         dVt[:,J[i]]+=-2*(S[I[i],J[i]]-U[I[i],:].dot(Vt[:,J[i]])-Bu[I[i],s]-Bi[J[i],s])*U[I[i],:].T
-    dU+=0.1*U
-    dVt+=0.1*Vt
+    dU+=U
+    dVt+=Vt
     return (dU ,dVt)
 
 def derivative2(S):
@@ -73,19 +73,18 @@ def derivative2(S):
         s = States[I[i],J[i]]
         dBu[I[i],s]+=-2*(S[I[i],J[i]]-U[I[i],:].dot(Vt[:,J[i]])-Bu[I[i],s]-Bi[J[i],s])
         dBi[J[i],s]+=-2*(S[I[i],J[i]]-U[I[i],:].dot(Vt[:,J[i]])-Bu[I[i],s]-Bi[J[i],s])
-    dBu+=0.1*Bu
-    dBi+=0.1*Bi
+    dBu+=Bu
+    dBi+=Bi
     return (dBu, dBi)
     
     
-def worker1(d,St, S):
-    d["mse_validate"]=evaluate(St)
+def worker1(d,S):
     dU ,dVt = derivative1(S)
     d['dU']=dU
     d['dVt']=dVt
     
 def worker2(d,S):
-    d["mse_test"]=evaluate(S)
+    print evaluate(S)
     dBu, dBi = derivative2(S)
     d['dBu'] = dBu
     d['dBi'] = dBi
@@ -93,18 +92,16 @@ def worker2(d,S):
 
 if __name__=='__main__':
     try:
-        for i in xrange(200):
+        for i in xrange(70):
             mgr = multiprocessing.Manager()
             d = mgr.dict()
-            p1 = multiprocessing.Process(target=worker1, args=(d,St,S))
+            p1 = multiprocessing.Process(target=worker1, args=(d,S))
             p2 = multiprocessing.Process(target=worker2, args=(d,S))
 
             p1.start()
             p2.start()
             p1.join()
             p2.join()
-            print d['mse_test']
-            print d['mse_validate']
             U-=0.0002*d['dU']
             Vt-=0.0002*d['dVt']
             Bu-=0.0002*d['dBu']

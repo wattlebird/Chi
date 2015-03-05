@@ -21,7 +21,7 @@ seed()
 
 ### Phase of selecting an item type
 
-tp = 'anime'
+tp = 'real'
 
 states = ["wish","do","collect","on_hold","dropped","all","states"];
 
@@ -62,20 +62,21 @@ for q in session.query(Record.name, Record.iid, Record.state).filter(Record.typ=
 
 States = coo_matrix((data['states'],(irow['states'],icol['states'])),dtype='i',shape=(M,N))
 
-t = range(S.data.shape[0])
-shuffle(t)
-tm=dict()
-irow['train']=np.array(irow['all'])[t[:int(len(t)*0.7)]]
-icol['train']=np.array(icol['all'])[t[:int(len(t)*0.7)]]
-irow['validate']=np.array(irow['all'])[t[int(len(t)*0.7):int(len(t)*0.9)]]
-icol['validate']=np.array(icol['all'])[t[int(len(t)*0.7):int(len(t)*0.9)]]
-irow['test']=np.array(irow['all'])[t[int(len(t)*0.9):]]
-icol['test']=np.array(icol['all'])[t[int(len(t)*0.9):]]
-tm['train']=coo_matrix(([True]*irow['train'].shape[0],(irow['train'],icol['train'])),dtype='b',shape=(M,N))
-tm['validate']=coo_matrix(([True]*irow['validate'].shape[0],(irow['validate'],icol['validate'])),dtype='b',shape=(M,N))
-tm['test']=coo_matrix(([True]*irow['test'].shape[0],(irow['test'],icol['test'])),dtype='b',shape=(M,N))
+#t = range(S.data.shape[0])
+#shuffle(t)
+#tm=dict()
+#irow['train']=np.array(irow['all'])[t[:int(len(t)*0.7)]]
+#icol['train']=np.array(icol['all'])[t[:int(len(t)*0.7)]]
+#irow['validate']=np.array(irow['all'])[t[int(len(t)*0.7):int(len(t)*0.9)]]
+#icol['validate']=np.array(icol['all'])[t[int(len(t)*0.7):int(len(t)*0.9)]]
+#irow['test']=np.array(irow['all'])[t[int(len(t)*0.9):]]
+#icol['test']=np.array(icol['all'])[t[int(len(t)*0.9):]]
+#tm['train']=coo_matrix(([True]*irow['train'].shape[0],(irow['train'],icol['train'])),dtype='b',shape=(M,N))
+#tm['validate']=coo_matrix(([True]*irow['validate'].shape[0],(irow['validate'],icol['validate'])),dtype='b',shape=(M,N))
+#tm['test']=coo_matrix(([True]*irow['test'].shape[0],(irow['test'],icol['test'])),dtype='b',shape=(M,N))
 
-U=S.multiply(tm['train']).tolil()
+#U=S.multiply(tm['train']).tolil()
+U=S.tolil()
 U_sum = U.sum(axis=1)
 U_cnt = U.getnnz(axis=1)
 
@@ -84,25 +85,25 @@ for i in xrange(M):
         if U_cnt[i]:
             U[i,j]-=U_sum[i,0]/U_cnt[i]
 
-Uvalidate = S.multiply(tm['validate']).tolil()
-U2_sum = Uvalidate.sum(axis=1)
-U2_cnt = Uvalidate.getnnz(axis=1)
-for i in xrange(M):
-    for j in Uvalidate[i].rows[0]:
-        if U_cnt[i]:
-            Uvalidate[i,j]-=U_sum[i,0]/U_cnt[i]
-        elif U2_cnt[i]:
-            Uvalidate[i,j]-=U2_sum[i,0]/U2_cnt[i]
+#Uvalidate = S.multiply(tm['validate']).tolil()
+#U2_sum = Uvalidate.sum(axis=1)
+#U2_cnt = Uvalidate.getnnz(axis=1)
+#for i in xrange(M):
+#    for j in Uvalidate[i].rows[0]:
+#        if U_cnt[i]:
+#            Uvalidate[i,j]-=U_sum[i,0]/U_cnt[i]
+#        elif U2_cnt[i]:
+#            Uvalidate[i,j]-=U2_sum[i,0]/U2_cnt[i]
 
-Utest = S.multiply(tm['test']).tolil()
-U2_sum = Utest.sum(axis=1)
-U2_cnt = Utest.getnnz(axis=1)
-for i in xrange(M):
-    for j in Utest[i].rows[0]:
-        if U_cnt[i]:
-            Utest[i,j]-=U_sum[i,0]/U_cnt[i]
-        elif U2_cnt[i]:
-            Utest[i,j]-=U2_sum[i,0]/U2_cnt[i]
+#Utest = S.multiply(tm['test']).tolil()
+#U2_sum = Utest.sum(axis=1)
+#U2_cnt = Utest.getnnz(axis=1)
+#for i in xrange(M):
+#    for j in Utest[i].rows[0]:
+#        if U_cnt[i]:
+#            Utest[i,j]-=U_sum[i,0]/U_cnt[i]
+#        elif U2_cnt[i]:
+#            Utest[i,j]-=U2_sum[i,0]/U2_cnt[i]
 
 Bu = np.zeros((M,5))
 Bi = np.zeros((N,5))
@@ -123,7 +124,7 @@ for i in xrange(5):
         if U_cnt[j]:
             Bi[j,i]=U_sum[0,j]/U_cnt[j]
 
-u,s,vt = svds(U,k=800)
+u,s,vt = svds(U,k=400)
     
 #f = h5py.File("data.hdf5","w")
 #f.create_dataset("Buser",(M,5),'f')
@@ -143,8 +144,8 @@ fw = open('dat/training-'+tp+'.dat','wb')
 #cPickle.dump(sm,fw)
 #cPickle.dump(tm,fw)
 cPickle.dump(U,fw)
-cPickle.dump(Uvalidate,fw)
-cPickle.dump(Utest,fw)
+#cPickle.dump(Uvalidate,fw)
+#cPickle.dump(Utest,fw)
 cPickle.dump(States,fw)
 cPickle.dump(Bu,fw)
 cPickle.dump(Bi,fw)

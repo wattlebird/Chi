@@ -1,7 +1,7 @@
 import cPickle
 from model import UserInfo
 from model import ItemInfo
-from util import getnickname
+from util import getnickname, getitemname
 
 fr = open('dat/db.dat','rb')
 imask = cPickle.load(fr)
@@ -26,16 +26,16 @@ class Connector(object):
         return getnickname(username)
 
     def GenerateItemMask(self, typ):
-        if typ=='all':
+        if typ is None:
             return None
         else:
             return imask[typ]
 
     def GenerateUserMask(self, typ, acl):
-        if typ=='all' and acl==0:
+        if typ is None and acl is None:
             return None
         else:
-            return umask[typ].mulitply(umask[acl])
+            return umask[typ].mulitply(umask[int(acl)])
         
     def CheckItemid(self, iindex):
         q = ItemInfo.query.filter(index = iindex).first()
@@ -43,3 +43,6 @@ class Connector(object):
 
     def CheckItemName(self, iid):
         return getitemname(iid)
+
+    def GetTypeCount(self, typ):
+        return umask[typ].getnnz();

@@ -8,9 +8,11 @@ class Controller:
         self.data = DataCenter()
 
     def UserExist(self, username):
+        """True if user registered before 15/01/2015"""
         return self.com.CheckUserexists(username)
 
     def UserRecords(self, username):
+        """True if user faved at least one item."""
         return not self.com.CheckUid(username) is None
 
     def GetTopRank(self, username, typ, acl):
@@ -64,3 +66,9 @@ class Controller:
             iname = self.com.CheckItemName(iid)
             rtn.append([iid,iname])
         return rtn;
+
+    def GetCount(self, typ):
+        return self.com.GetTypeCount(typ)
+
+    def GetUsernickname(self, username):
+        return self.com.CheckNickname(username)

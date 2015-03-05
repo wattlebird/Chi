@@ -20,6 +20,7 @@ def similarity():
     if request.method=='POST':
         username = request.form.get('username').strip()
         candidate = request.form.get('candidate').strip()
+        acl = request.form.get('acl')
         if not validateform(username):
             return render_template('similarity.html', error=u'请输入正确的用户名或时光机 URL！')
         
@@ -48,33 +49,34 @@ def similarity():
 @app.route('/similarity/<username>')
 @cross_origin()
 def user(username):
+    typ = request.args.get('type')
+    if not typ in ['anime','book','music','game','real']:
+        typ=None
+    acl = request.args.get('acl')
+    if not acl in ['1','2','3']:
+        acl=None
+    #acl=int(acl)
     if not request.args.get('candidate'):
+        
         if c.UserRecords(username):
-            typ = request.args.get('type')
-            if typ is None or not typ in ['anime','book','music','game','real']:
-                typ='all'
-            acl = request.args.get('activelevel')
-            if acl is None or not acl in ['1','2','3']:
-                acl='0'
-            acl=int(acl)
+            
 
             lst = c.GetTopRank(username, typ, acl)
-            render_template('single.html',username=username, simlist=lst)
+            un = c.GetUsernickname(username)
+            render_template('single.html',username=username, usernickname=un, simlist=lst, typ=typ, acl=acl)
         else:
-            render_template("single.html",username=username, simlist=[])
+            un = c.GetUsernickname(username)
+            render_template("single.html",username=username, usernickname=un, simlist=[], typ=typ, acl=acl)
 
     else:
         candidate = request.args['candidate']
         if c.UserRecords(username) and c.UserRecords(candidate):
-            typ = request.args.get('type')
-            if typ is None or not typ in ['anime','book','music','game','real']:
-                typ='all'
-
             ntotal = c.GetCount(typ)
             (nu,nc,sim,ru,rc) = c.GetCouple(username, candidate, typ)
             if sim==0:
                 return render_template('couple.html',username=username, \
                 candidate=candidate, \
+                typ = typ, \
                 usernickname=nu, \
                 couplenickname=nc, \
                 similarity=sim, \
@@ -87,12 +89,22 @@ def user(username):
                     feedbacklst = c.GetNegFeedback(username, candidate, typ)
                 return render_template('couple.html',username=username, \
                 candidate=candidate, \
+                typ = typ, \
                 usernickname=nu, \
                 couplenickname=nc, \
                 similarity=sim, \
                 rank=ru, rankpercent=round(ru*100./ntotal,2), \
                 inverserank=rc, inverserankpercent=round(rc*100./ntotal,2), \
                 feedbacklst=feedbacklst)
+        else:
+            nu = c.GetUsernickname(username)
+            nc = c.GetUsernickname(candidate)
+            return render_template('couple.html',username=username, \
+                candidate=candidate, \
+                typ = typ, \
+                usernickname=nu, \
+                couplenickname=nc, \
+                similarity=0)
 
 
 
