@@ -6,7 +6,7 @@ from numpy import sqrt
 import multiprocessing
 import time
 
-tp='anime'
+tp='real'
 
 #fr = open('dat/db.dat','rb')
 #imask = cPickle.load(fr)
@@ -27,6 +27,12 @@ Bi = cPickle.load(fr)
 U = cPickle.load(fr)
 Vt = cPickle.load(fr)
 fr.close()
+#fr = open('dat/temp-'+tp+'.dat','rb')
+#U = cPickle.load(fr)
+#Vt = cPickle.load(fr)
+#Bu = cPickle.load(fr)
+#Bi = cPickle.load(fr)
+#fr.close()
 States=States.tolil()
 #f = h5py.File("data.hdf5","r")
 #U = f['u']
@@ -52,8 +58,8 @@ def evaluate(S):
     return sqrt(rtn/L)
 
 def derivative1(S):
-    dU = np.zeros((S.shape[0],800))
-    dVt = np.zeros((800, S.shape[1]))
+    dU = np.zeros((S.shape[0],400))
+    dVt = np.zeros((400, S.shape[1]))
     I,J = S.nonzero()
     L = S.getnnz()
     for i in xrange(L):

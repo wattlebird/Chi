@@ -3,6 +3,14 @@
 {% block content %}
 <h1 id="sim-title">同步率・改</h1>
 <h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ nickname[username] }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
+  <ul class="nav nav-tabs nav-stacked">
+    <li role="presentation" {% if typ is None %}class="active"{% endif %}><a href="#">综合</a></li>
+    <li role="presentation" {% if typ is 'anime' %}class="active"{% endif %}><a href="#">动画</a></li>
+    <li role="presentation" {% if typ is 'book' %}class="active"{% endif %}><a href="#">书籍</a></li>
+    <li role="presentation" {% if typ is 'music' %}class="active"{% endif %}><a href="#">音乐</a></li>
+    <li role="presentation" {% if typ is 'game' %}class="active"{% endif %}><a href="#">游戏</a></li>
+    <li role="presentation" {% if typ is 'real' %}class="active"{% endif %}><a href="#">三次元</a></li>
+  </ul>
   {% for x in simlist %}
   <div class="row">
     <div class="col-sm-2" data="{{ x[0] }}" class="userblock">
@@ -45,7 +53,26 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            我，{{ nickname[username] }}，在 [url={{ request.url }}]Chi[/url] 中找到的同步率最高的十位 BGMer 如下：<br/>
+            我，{{ nickname[username] }}，在 [url={{ request.url }}]Chi[/url] 中找到的
+            {% if typ=="anime" %}
+            动画条目
+            {% elif typ=='book' %}
+            书籍条目
+            {% elif typ=='music' %}
+            音乐条目
+            {% elif typ=='game' %}
+            游戏条目
+            {% elif typ=='real' %}
+            三次元条目
+            {% endif %}
+            同步率最高的十位
+            {% if acl=='1' %}
+            一个月内活跃的
+            {% elif acl=='2' %}
+            半年内活跃的
+            {% elif acl=='3' %}
+            一年内活跃的
+            {% endif %} BGMer 如下：<br/>
             {% for x in simlist %}
             @{{ x[0] }} {{ x[1]*100 }}%<br/>
             {% endfor %}
