@@ -17,5 +17,6 @@ cache = Cache(app,config={'CACHE_TYPE': 'memcached', 'CACHE_MEMCACHED_SERVERS': 
 cors = CORS(app)
 
 db = SQLAlchemy(app)
+db.create_all()
 
 from app import views,model

@@ -68,5 +68,5 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 if __name__=='__main__':
-    print session.query(func.avg(Record.rate).label('average')).\
-    filter(Record.rate != None).scalar();
+    for q in session.query(Record.name, Record.iid, Record.rate, Record.state).filter(Record.rate != None).limit(100).all():
+        print q.rate

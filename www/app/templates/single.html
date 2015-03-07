@@ -2,39 +2,49 @@
 
 {% block content %}
 <h1 id="sim-title">同步率・改</h1>
-<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ nickname[username] }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ usernickname }}</a>! 与你同步率最高的前十位 BGMer 如下：</h3>
+  <ul class="nav nav-tabs nav-justified" id="typenav">
+    <li role="presentation" {% if not typ %}class="active"{% endif %}><a href="{{ url_for("user",username=username, acl=acl) }}">综合</a></li>
+    <li role="presentation" {% if typ=='anime' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, typ='anime', acl=acl) }}">动画</a></li>
+    <li role="presentation" {% if typ=='book' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, typ='book', acl=acl) }}">书籍</a></li>
+    <li role="presentation" {% if typ=='music' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, typ='music', acl=acl) }}">音乐</a></li>
+    <li role="presentation" {% if typ=='game' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, typ='game', acl=acl) }}">游戏</a></li>
+    <li role="presentation" {% if typ=='real' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, typ='real', acl=acl) }}">三次元</a></li>
+  </ul>
+  {% if simlist.__len__() %}
   {% for x in simlist %}
   <div class="row">
     <div class="col-sm-2" data="{{ x[0] }}" class="userblock">
-      <a href="{{ url_for('user', username=username, candidate=x[0]) }}" class="pull-right">{{ nickname[x[0]] }}</a><span></span>
+      <a href="{{ url_for('user', username=username, candidate=x[0], typ=typ) }}" class="pull-right">{{ x[1] }}</a><span></span>
     </div>
     <div class="col-sm-7">
       <div class="progress">
-      {% if x[1]>0.95 %}
+      {% if x[2]>95 %}
         <div class="progress-bar  progress-bar-danger" role="progressbar"
-          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
-          {{ x[1]*100 }}%
+          aria-valuenow="{{ x[2] }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[2] }}%">
+          {{ x[2] }}%
         </div>
-      {% elif x[1]>0.8 %}
+      {% elif x[2]>80 %}
         <div class="progress-bar  progress-bar-warning" role="progressbar"
-          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
-          {{ x[1]*100 }}%
+          aria-valuenow="{{ x[2] }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[2] }}%">
+          {{ x[2] }}%
         </div>
-      {% elif x[1]<0.5 %}
+      {% elif x[2]<50 %}
         <div class="progress-bar  progress-bar-success" role="progressbar"
-          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
-          {{ x[1]*100 }}%
+          aria-valuenow="{{ x[2] }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[2] }}%">
+          {{ x[2] }}%
         </div>
       {% else %}
         <div class="progress-bar  progress-bar-info" role="progressbar"
-          aria-valuenow="{{ x[1]*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[1]*100 }}%">
-          {{ x[1]*100 }}%
+          aria-valuenow="{{ x[2] }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ x[2] }}%">
+          {{ x[2] }}%
         </div>
       {% endif %}
       </div>
     </div>
   </div>
   {% endfor %}
+  {% endif %}
   <div class="row">
   <div class="col-sm-offset-6 col-sm-2 sharegrp">
     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#bgmshare">
@@ -45,10 +55,12 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-body">
-            我，{{ nickname[username] }}，在 [url={{ request.url }}]Chi[/url] 中找到的同步率最高的十位 BGMer 如下：<br/>
+            我，{{ usernickname }}，在 [url={{ request.url }}]Chi[/url] 中找到的{% if typ=="anime" %}动画条目{% elif typ=='book' %}书籍条目{% elif typ=='music' %}音乐条目{% elif typ=='game' %}游戏条目{% elif typ=='real' %}三次元条目{% endif %}同步率最高的十位{% if acl=='1' %}一个月内活跃的{% elif acl=='2' %}半年内活跃的{% elif acl=='3' %}一年内活跃的{% endif %} BGMer 如下：<br/>
+            {% if simlist.__len__() %}
             {% for x in simlist %}
-            @{{ x[0] }} {{ x[1]*100 }}%<br/>
+            @{{ x[0] }} {{ x[2] }}%<br/>
             {% endfor %}
+            {% endif %}
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

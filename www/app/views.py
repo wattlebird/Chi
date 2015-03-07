@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask.ext.cors import cross_origin
-from app import app, db, cors
+from app import app, cors, cache
 from util import validateform, getnickname
-from data import qualified, similarlist, getsim, getrank
+from connector import Controller
 
-db.create_all()
+c=Controller()
+cache.clear()
 
 @app.route('/')
 def index():
@@ -20,16 +21,23 @@ def similarity():
     if request.method=='POST':
         username = request.form.get('username').strip()
         candidate = request.form.get('candidate').strip()
+        acl = request.form.get('acl')
         if not validateform(username):
             return render_template('similarity.html', error=u'请输入正确的用户名或时光机 URL！')
         
         username = validateform(username)
         if not candidate:
-            return redirect(url_for('user', username=username))
+            if c.UserExist(username):
+                return redirect(url_for('user', username=username, acl=acl))
+            else:
+                return render_template('similarity.html', error=u'啊，非常抱歉，我们找不到您的记录。有可能是由于我们数据库未及时更新或者您未注册 Bangumi。')
         elif not validateform(candidate):
             return render_template('similarity.html', username=username, error=u'请输入正确的用户名或时光机 URL！')
         else:
-            return redirect(url_for('user', username=username, candidate=validateform(candidate)))
+            if c.UserExist(username) and c.UserExist(validateform(candidate)):
+                return redirect(url_for('user', username=username, candidate=validateform(candidate), acl=acl))
+            else:
+                return render_template('similarity.html', error=u'啊，非常抱歉，我们找不到您的记录。有可能是由于我们数据库未及时更新或者您未注册 Bangumi。')
     else:
         error=session.get("error")
         if error:
@@ -42,34 +50,59 @@ def similarity():
 @app.route('/similarity/<username>')
 @cross_origin()
 def user(username):
+    typ = request.args.get('typ')
+    if typ not in ['anime','book','music','game','real']:
+        typ=None
+    acl = request.args.get('acl')
+    if acl not in ['1','2','3']:
+        acl=None
+    #acl=int(acl)
     if not request.args.get('candidate'):
-        if qualified(db, username)==1:
-            simlist = similarlist(db, username);
-            nickname = dict()
-            for x in simlist:
-                nickname[x[0]] = getnickname(x[0])
-            nickname[username] = getnickname(username)
-            return render_template('single.html',username=username, simlist=simlist, nickname=nickname)
-        elif qualified(db, username)==-1:
-            session["error"]=u"啊，非常抱歉，我们找不到您的记录。有可能是由于我们数据库未及时更新或者您未注册 Bangumi。"
-            return redirect(url_for('similarity'))
+        
+        if c.UserRecords(username):
+
+            lst = c.GetTopRank(username, typ, acl)
+            un = c.GetUsernickname(username)
+            return render_template('single.html',username=username, usernickname=un, simlist=lst, typ=typ, acl=acl)
         else:
-            return render_template('plz_favorite_request.html')
+            un = c.GetUsernickname(username)
+            return render_template("single.html",username=username, usernickname=un, simlist=[], typ=typ, acl=acl)
+
     else:
         candidate = request.args['candidate']
-        if qualified(db, candidate)==1 and qualified(db, username)==1:
-            nickname = dict()
-            nickname[candidate] = getnickname(candidate)
-            nickname[username] = getnickname(username)
-            sim = getsim(db, username, candidate)
-            rank = getrank(db, username, candidate)
-            rp=round(1-rank/50362., 4)*100
-            irank = getrank(db, candidate, username)
-            irp = round(1-irank/50362., 4)*100
-            return render_template('couple.html',username=username, candidate=candidate, nickname=nickname, \
-            similarity=sim, rank=rank, rankpercent=rp, inverserank=irank, inverserankpercent=irp)
-        elif qualified(db, candidate)==0 or qualified(db, username)==0:
-            return render_template('couple.html',username=username, candidate=candidate, similarity=0.5)
+        if c.UserRecords(username) and c.UserRecords(candidate):
+            ntotal = c.GetCount(typ)
+            (nu,nc,sim,ru,rc) = c.GetCouple(username, candidate, typ)
+            if ru==0 or rc==0:
+                return render_template('couple.html',username=username, \
+                candidate=candidate, \
+                typ = typ, \
+                usernickname=nu, \
+                couplenickname=nc, \
+                similarity=sim)
+            else:
+                if sim>50.0:
+                    feedbacklst = c.GetFeedback(username, candidate, typ)
+                else:
+                    feedbacklst = c.GetNegFeedback(username, candidate, typ)
+                return render_template('couple.html',username=username, \
+                candidate=candidate, \
+                typ = typ, \
+                usernickname=nu, \
+                couplenickname=nc, \
+                similarity=sim, \
+                rank=ru, rankpercent=round((ntotal-ru)*100./ntotal,2), \
+                inverserank=rc, inverserankpercent=round((ntotal-rc)*100./ntotal,2), \
+                feedbacklst=feedbacklst)
         else:
-            session["error"]=u"啊，非常抱歉，我们找不到您基(姬)友的记录。有可能是由于我们数据库未及时更新或者您未注册 Bangumi。"
-            return redirect(url_for('similarity'))
+            nu = c.GetUsernickname(username)
+            nc = c.GetUsernickname(candidate)
+            return render_template('couple.html',username=username, \
+                candidate=candidate, \
+                typ = typ, \
+                usernickname=nu, \
+                couplenickname=nc, \
+                similarity=50.00)
+
+
+
