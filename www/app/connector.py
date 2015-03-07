@@ -18,7 +18,7 @@ class Controller:
     def GetTopRank(self, username, typ, acl):
         uid = self.com.CheckUid(username);
         maskItem = self.com.GenerateItemMask(typ);
-        maskUser = self.com.GenerateUserMask(typ, acl);
+        maskUser = self.com.GenerateUserMask(typ, acl=acl);
         lst = self.data.TopRank(uid, maskItem, maskUser)
         
         rtn = [];
@@ -46,9 +46,11 @@ class Controller:
         return (una, unb, pr, ra, rb)
 
     def GetFeedback(self, ua, ub, typ):
+        uida = self.com.CheckUid(ua);
+        uidb = self.com.CheckUid(ub);
         maskItem = self.com.GenerateItemMask(typ);
         maskUser = self.com.GenerateUserMask(typ);
-        lst = self.data.GetPosItem(ua, ub, maskItem, maskUser)
+        lst = self.data.GetPosItem(uida, uidb, maskItem, maskUser)
         rtn = [];
         for x in lst:
             iid = self.com.CheckItemid(x)
@@ -57,9 +59,11 @@ class Controller:
         return rtn;
 
     def GetNegFeedback(self, ua, ub, typ):
+        uida = self.com.CheckUid(ua);
+        uidb = self.com.CheckUid(ub);
         maskItem = self.com.GenerateItemMask(typ);
         maskUser = self.com.GenerateUserMask(typ);
-        lst = self.data.GetNegItem(ua, ub, maskItem, maskUser)
+        lst = self.data.GetNegItem(uida, uidb, maskItem, maskUser)
         rtn = [];
         for x in lst:
             iid = self.com.CheckItemid(x)

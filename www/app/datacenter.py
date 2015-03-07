@@ -1,6 +1,7 @@
 import cPickle
 from heapq import nlargest,nsmallest
-from numpy import sqrt
+from numpy import sqrt, array, nonzero
+from app import cache
 
 fr = open('dat/a.dat','rb')
 U = cPickle.load(fr)
@@ -36,81 +37,71 @@ class DataCenter:
 
     @staticmethod
     def Normalize(sim):
-        return round((sim+1)/2,4)*100
+        return round((sim+1.)/2,4)*100
 
+    @cache.memoize(600)
     def TopRank(self, uid, itemmask, usermask):
-        if not itemmask:
-            M=U
-        else:
-            # Notice! Here itemmask should be a 1 x N csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U[:,itemmask.indices]
+
+        M=U[:,itemmask.indices]
 
         v = M[uid]
-        if usermask:
-            # Here, usermask should also be a row vector.
-            M=M[usermask.indices]
+        vnorm = sqrt(U2[:,itemmask.indices][uid].sum(axis=1)[0,0])+1
+        M=M[usermask.indices]
 
+        unorm = self._getnorm(itemmask, usermask)
         # Now standardize information to lst, include normalize and packaging.
-        simv = array(M.dot(v.T)/_getnorm(itemmask, usermask)).squeeze(1)
-        if usermask:
-            lst = _generatenodelist(simv, usermask.indices)
-        else:
-            lst = _generatenodelist(simv, range(M.shape[0]))
+        simv = array(M.dot(v.T)/unorm/vnorm).squeeze(1)
+
+        lst = self._generatenodelist(simv, usermask.indices)
 
         rt = nlargest(11,lst)
         rlist = []
         # if uid have favorated some items, it returns a list.
         # Otherwise, returns an empty list.
         if uid in usermask.indices:
-            for x in rt:
+            for x in rt[1:]:
                 rlist.append([x.id, x.sim])
         return rlist
 
     def GetSimilarity(self, uida, uidb, itemmask):
-        if not itemmask:
-            M=U
-        else:
-            # Notice! Here itemmask should be a 1 x N row csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U[:,itemmask.indices]
+
+        M=U[:,itemmask.indices]
+        M2=U2[:,itemmask.indices]
 
         va = M[uida]
         vb = M[uidb]
-        n = (sqrt(U2[uida])+1)(sqrt(U2[uidb])+1)
-        return va.dot(vb.T)/n
-
-
-    def GetRankOf(self, uida, uidb, sim, itemmask, usermask):
-        if not itemmask:
-            M=U
+        n = (sqrt(M2[uida].sum(axis=1)[0,0])+1)*(sqrt(M2[uidb].sum(axis=1)[0,0])+1)
+        v = va.dot(vb.T)
+        if v.getnnz()==1:
+            return v.data[0]/n
         else:
-            # Notice! Here itemmask should be a 1 x N row csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U[:,itemmask.indices]
+            return 0
+
+    @cache.memoize(600)
+    def GetRankOf(self, uida, uidb, sim, itemmask, usermask):
+
+        M=U[:,itemmask.indices]
         
         va = M[uida]
-        if usermask:
-            # Here, usermask should also be a row vector.
-            M=M[usermask.indices]
+        vnorm = sqrt(U2[:,itemmask.indices][uida].sum(axis=1)[0,0])+1
+        M=M[usermask.indices]
 
-        simv = M.dot(va.T)
-        return (simv>sim).getnnz();
+        simv = M.dot(va.T)/self._getnorm(itemmask, usermask)/vnorm
+        return nonzero(simv>sim)[0].shape[1];
 
 
     def GetPosItem(self, uida, uidb, itemmask, usermask):
-        if not itemmask:
-            M=U
-        else:
-            # Notice! Here itemmask should be a 1 x N row csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U[:,itemmask.indices]
 
-        va = M[uida]
-        vb = M[uidb]
+        va = U[uida]
+        vb = U[uidb]
+        va = va.multiply(itemmask)
+        vb = vb.multiply(itemmask)
         x = va.multiply(vb)
-        x = x.multiply(x>0)
-        lst = _generatenodelist(x.data, x.indices)
+        x.data=x.data*(x.data>2)
+        x.eliminate_zeros()
+        if x.getnnz()==0:
+            return []
+        lst = self._generatenodelist(x.data, x.indices)
         rt = nlargest(3,lst)
         rtlst = []
         for x in rt:
@@ -119,18 +110,17 @@ class DataCenter:
         
 
     def GetNegItem(self, uida, uidb, itemmask, usermask):
-        if not itemmask:
-            M=U
-        else:
-            # Notice! Here itemmask should be a 1 x N row csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U[:,itemmask.indices]
 
-        va = M[uida]
-        vb = M[uidb]
+        va = U[uida]
+        vb = U[uidb]
+        va = va.multiply(itemmask)
+        vb = vb.multiply(itemmask)
         x = va.multiply(vb)
-        x = x.multiply(x<0)
-        lst = _generatenodelist(x.data, x.indices)
+        x.data=x.data*(x.data<-2)
+        x.eliminate_zeros()
+        if x.getnnz()==0:
+            return []
+        lst = self._generatenodelist(x.data, x.indices)
         rt = nsmallest(3,lst)
         rtlst = []
         for x in rt:
@@ -140,22 +130,16 @@ class DataCenter:
     def _generatenodelist(self, data, index):
         """ data is an one dim array, index is also an one dim array."""
         lst = []
-        for i in index.shape[0]:
-            lst.append(id = index[i], sim = data[i])
+        for i in xrange(index.shape[0]):
+            lst.append(Node(id = index[i], sim = data[i]))
         return lst
 
+    @cache.memoize(60000)
     def _getnorm(self, itemmask, usermask):
         """ return a matrix sum(usermask) x 1 """
-        if not itemmask:
-            M=U2
-        else:
-            # Notice! Here itemmask should be a 1 x N row csr sparse matrix. 
-            # So itemmask.indices should return all indexs that are not zero.
-            M=U2[:,itemmask.indices]
+        M=U2[:,itemmask.indices]
 
-        if usermask:
-            # Here, usermask should also be a row vector.
-            M=M[usermask.indices]
+        M=M[usermask.indices]
 
         return sqrt(M.sum(axis=1))+1
 

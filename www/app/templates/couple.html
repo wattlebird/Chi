@@ -1,45 +1,53 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ nickname[username] }}</a>! 你与 <a href="http://chii.in/user/{{ candidate }}" class="userlink">{{ nickname[candidate] }}</a> 的同步率如下：</h3>
+<h3 id="title">Hi <a href="http://chii.in/user/{{ username }}" class="userlink">{{ usernickname }}</a>! 你与 <a href="http://chii.in/user/{{ candidate }}" class="userlink">{{ couplenickname }}</a> 的同步率如下：</h3>
+  <ul class="nav nav-tabs nav-justified" id="typenav">
+    <li role="presentation" {% if not typ %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate) }}">综合</a></li>
+    <li role="presentation" {% if typ=='anime' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate, typ='anime') }}">动画</a></li>
+    <li role="presentation" {% if typ=='book' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate, typ='book') }}">书籍</a></li>
+    <li role="presentation" {% if typ=='music' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate, typ='music') }}">音乐</a></li>
+    <li role="presentation" {% if typ=='game' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate, typ='game') }}">游戏</a></li>
+    <li role="presentation" {% if typ=='real' %}class="active"{% endif %}><a href="{{ url_for("user",username=username, candidate=candidate, typ='real') }}">三次元</a></li>
+  </ul>
   <div class="row">
     <div class="col-sm-2" data="{{ candidate }}" class="userblock">
-      <a href="http://chii.in/user/{{ candidate }}" class="pull-right">{{ nickname[candidate] }}</a><span></span>
+      <a href="http://chii.in/user/{{ candidate }}" class="pull-right">{{ couplenickname }}</a><span></span>
     </div>
     <div class="col-sm-8">
       <div class="progress">
-      {% if similarity>0.95 %}
+      {% if similarity>95 %}
         <div class="progress-bar  progress-bar-danger" role="progressbar"
-          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
-          {{ similarity*100 }}%
+          aria-valuenow="{{ similarity }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity }}%">
+          {{ similarity }}%
         </div>
-      {% elif similarity>0.8 %}
+      {% elif similarity>80 %}
         <div class="progress-bar  progress-bar-warning" role="progressbar"
-          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
-          {{ similarity*100 }}%
+          aria-valuenow="{{ similarity }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity }}%">
+          {{ similarity }}%
         </div>
-      {% elif similarity<0.5 %}
+      {% elif similarity<50 %}
         <div class="progress-bar  progress-bar-success" role="progressbar"
-          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
-          {{ similarity*100 }}%
+          aria-valuenow="{{ similarity }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity }}%">
+          {{ similarity }}%
         </div>
       {% else %}
         <div class="progress-bar  progress-bar-info" role="progressbar"
-          aria-valuenow="{{ similarity*100 }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity*100 }}%">
-          {{ similarity*100 }}%
+          aria-valuenow="{{ similarity }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ similarity }}%">
+          {{ similarity }}%
         </div>
       {% endif %}
       </div>
     </div>
     <div class="col-sm-2" data="{{ username }}" class="userblock">
-      <a href="http://chii.in/user/{{ username }}">{{ nickname[username] }}</a><span></span>
+      <a href="http://chii.in/user/{{ username }}">{{ usernickname }}</a><span></span>
     </div>
   </div>
   {% if rank %}
-  <p>{{ nickname[candidate] }} 在 {{ nickname[username] }} 和全站有收藏条目的 BGMer 同步率中排名处于排名第<span class='lead'> {{ rank }} </span>位的位置，超过了 {{ rankpercent }}% 的 BGMer！</p>
   
   <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
+  <p>{{ couplenickname }} 在 {{ usernickname }} 和全站有收藏{% if typ=="anime" %}动画{% elif typ=='book' %}书籍{% elif typ=='music' %}音乐{% elif typ=='game' %}游戏{% elif typ=='real' %}三次元{% endif %}条目的 BGMer 同步率中排名处于排名第<span class='lead'> {{ rank }} </span>位的位置，超过了 {{ rankpercent }}% 的 BGMer！</p>
   <div class="progress">
         <div class="progress-bar  progress-bar-danger" role="progressbar"
           aria-valuenow="{{ rankpercent }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ rankpercent }}%">
@@ -49,19 +57,43 @@
   </div>
   </div>
 
-  <p>与此同时，{{ nickname[username] }} 在 {{ nickname[candidate] }} 的全站有收藏条目的用户同步率排名中名列第<span class='lead'> {{ inverserank }} </span>位，击败了 {{ inverserankpercent }}% 的基／姬友！（喂</p>
+  
 
   <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
+  <p>与此同时，{{ usernickname }} 在 {{ couplenickname }} 的全站有收藏{% if typ=="anime" %}动画{% elif typ=='book' %}书籍{% elif typ=='music' %}音乐{% elif typ=='game' %}游戏{% elif typ=='real' %}三次元{% endif %}条目的用户同步率排名中名列第<span class='lead'> {{ inverserank }} </span>位，击败了 {{ inverserankpercent }}% 的基／姬友！（喂</p>
   <div class="progress">
         <div class="progress-bar  progress-bar-danger" role="progressbar"
           aria-valuenow="{{ inverserankpercent }}" aria-valuemin="0" aria-valuemax="100" style="width:{{ inverserankpercent }}%">
-          {{ rankpercent }}%
+          {{ inverserankpercent }}%
         </div>
   </div>
   </div>
   </div>
+
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-8">
   {% endif %}
+  {% if similarity>=50 %}
+    {% if feedbacklst.__len__()==3 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>、<a href="http://chii.in/subject/{{ feedbacklst[1][0] }}">{{ feedbacklst[1][1] }}</a>和<a href="http://chii.in/subject/{{ feedbacklst[2][0] }}">{{ feedbacklst[2][1] }}</a>等作品上看法一致。</p>
+    {% elif feedbacklst.__len__()==2 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>和<a href="http://chii.in/subject/{{ feedbacklst[1][0] }}">{{ feedbacklst[1][1] }}</a>两部作品上看法一致。</p>
+    {% elif feedbacklst.__len__()==1 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>一部作品上看法一致。</p>
+    {% endif %}
+  {% else %}
+    {% if feedbacklst.__len__()==3 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>、<a href="http://chii.in/subject/{{ feedbacklst[1][0] }}">{{ feedbacklst[1][1] }}</a>和<a href="http://chii.in/subject/{{ feedbacklst[2][0] }}">{{ feedbacklst[2][1] }}</a>等作品上持有相反评价。</p>
+    {% elif feedbacklst.__len__()==2 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>和<a href="http://chii.in/subject/{{ feedbacklst[1][0] }}">{{ feedbacklst[1][1] }}</a>两部作品上持有相反评价。</p>
+    {% elif feedbacklst.__len__()==1 %}
+    <p>你们在<a href="http://chii.in/subject/{{ feedbacklst[0][0] }}">{{ feedbacklst[0][1] }}</a>一部作品上持有相反评价。</p>
+    {% endif %}
+  {% endif %}
+  </div>
+  </div>
+
   <div class="row">
   <div class="col-sm-offset-8 col-sm-4" id="sharebtn">
     <a href="https://twitter.com/share" class="twitter-share-button" data-text="Wow! 我在 Chi（Bangumi 未来实验室）上看到了自己和其他 BGMer 的同步率！你也快来试试吧！" data-via="wattlebird_01">Tweet</a>
