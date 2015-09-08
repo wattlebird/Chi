@@ -150,20 +150,45 @@ class BangumiSoftmaxRBM(BaseEstimator, TransformerMixin):
         self.random_state = random_state
         self.n_randomwalk=n_randomwalk
 
-    def _sample_hiddens(self, v, rng):
-        """v: sparse matrix. (nV,K)
-        return: binarized hidden nodes.
+        self.rng = check_random_state(self.random_state)
+        self.rmse = []
+        self.rmsev = []
+
+    def _sample_hiddens(self, v, rng, mask_item):
+        """v: dense matrix. (nV,K)
+        return: binarized hidden nodes, following p(h=1|v)
         """
-
-
         w = self.components_[:,mask_item,:]
         h = np.empty((1,self.n_components))
         for i in xrange(self.K):
             h+=safe_sparse_dot(v[:,i].T, w[i,:,:])
+        h += self.intercept_hidden_
         expit(h,out=h)
         return (rng.random_sample(size=h.shape) < p)
 
+    def _prob_visibles(self, h, mask_item):
+        """h: dense array (1, nH)
+        return the softmax prob of V
+        """
+        w = self.components_[:,mask_item,:] #(K,nitem,nH)
+        v = np.dot(w,h.T)[:,:,0].T #(nitem, K)
+        v += self.intercept_visible_[mask_item,:] # (nV, K)
+        expit(v,out=v)
+        for i in v.shape[0]:
+            v[i,:]/=sum(v[i,:])
+        return v;
 
+    def _prob_hiddens(self, v, mask_item):
+        """v: dense matrix. (nV,K)
+        returns: p(h=1|v)
+        """
+        w = self.components_[:,mask_item,:]
+        h = np.empty((1,self.n_components))
+        for i in xrange(self.K):
+            h+=safe_sparse_dot(v[:,i].T, w[i,:,:])
+        h += self.intercept_hidden_
+        expit(h,out=h)
+        return h
 
     def _fit(self, v_pos, rng, n_samples):
         """x is a training sample
@@ -177,8 +202,8 @@ class BangumiSoftmaxRBM(BaseEstimator, TransformerMixin):
         for i in xrange(self.n_randomwalk-1):
             h_pos = self._sample_hiddens(v_pos, rng) # p(h=1|v), binary
             v_pos = self._prob_visibles(h_pos) # p(v=1|h), prob
-        h_neg = self._sample_hiddens(v_pos, rng) # p(h=1|v), binary
-        v_neg = self._prob_visibles(h_pos) # p(v=1|h), prob
+        h_neg = self._prob_hiddens(v_pos, rng) # p(h=1|v), prob
+        v_neg = self._prob_visibles(h_neg) # p(v=1|h), prob
 
         lr = float(self.learning_rate) / n_samples
         update = np.empty((v_pos.shape[1],v_pos.shape[0],h_pos.shape[1]))
@@ -189,37 +214,96 @@ class BangumiSoftmaxRBM(BaseEstimator, TransformerMixin):
         self.intercept_hidden_ += lr*(h_pos-h_neg)
         self.intercept_visible_[mask_item,:] += lr*(v_pos-v_neg)
 
+    def _rmse(self, X, Xv=None):
+        if Xv is None:
+            cnt=0;
+            rtn=0;
+            for x in X:
+                cnt+=x.getnnz()
+                mask_item = x.nonzero()[0]
+                v = self.predict(x)[mask_item,:]
+                rate = x.nonzero()[1]+1;
+                pred = v.dot(np.arange(1,11))
+                rtn += np.sum((pred-rate)**2)
+            return np.sqrt(rtn/cnt)
+        else:
+            cnt=0;cntv=0;
+            rtn=0;rtnv=0;
+            for x,xv in zip(X,Xv):
+                cnt+=x.getnnz()
+                cntv+=xv.getnnz()
+                mask_item = x.nonzero()[0]
+                mask_item_v = xv.nonzero()[0]
+                v = self.predict(x)
+                vt = v[mask_item,:]
+                vv = v[mask_item_v,:]
+                rate = x.nonzero()[1]+1;
+                ratev = x.nonzero()[1]+1;
+                pred = vt.dot(np.arange(1,11))
+                predv = vv.dot(np.arange(1,11))
+                rtn += np.sum((pred-rate)**2)
+                rtnv += np.sum((predv-ratev)**2)
+            return [np.sqrt(rtn/cnt), np.sqrt(rtnv/cntv)]
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, Xv=None):
         """X: training samples.
         list of a user's movie records.
         it should be a sparse matrix, with first dimension equals
         number of items, and second dimension equals number of possible
         ratings.
         """
-        X = check_array(X, accept_sparse='csr', dtype=np.float)
         n_samples = len(X)
         nV = X[0].shape[0]
         K = X[0].shape[1]
-        rng = check_random_state(self.random_state)
+        rng = self.rng
 
         self.components_ = np.asarray(
             rng.normal(0, 0.01, (K, nV, self.n_components)))
         self.intercept_hidden_ = np.zeros((1,self.n_components))
         self.intercept_visible_ = np.zeros((nV,K))
 
+
         begin = time.time()
         for iteration in xrange(1, self.n_iter + 1):
-            shuffle(X)
-            for x in X:
-                self._fit(x,rng,n_samples)
+            if Xv is None:
+                shuffle(X)
+            else:
+                X = zip(X,Xv)
+                shuffle(X)
+                X,Xv = zip(*X)
+
+            for i in xrange(len(X))
+                self._fit(X[i],rng,n_samples)
+
+            t=self._rmse(X,Xv)
+            if Xv is not None:
+                self.rmsev.append(t[1])
+                self.rmse.append(t[0])
+            else:
+                self.rmse.append(t)
 
             if self.verbose:
-                end = time.time()
-                print("[%s] Iteration %d, pseudo-likelihood = %.2f,"
-                      " time = %.2fs"
+                print("[%s] Iteration %d, rmse on training set = %.2f"
                       % (type(self).__name__, iteration,
-                         self.score_samples(X).mean(), end - begin))
-                begin = end
+                         self.rmse[-1]))
+                if Xv is not None:
+                    print("rmse on validation set = %.2f"
+                    %self.rmsev[-1])
 
         return self
+
+    def predict(self, x):
+        nV = x.shape[0]
+        mask_item=x.nonzero()[0]
+        x = x[mask_item,:].todense()
+        h = self._prob_hiddens(x, mask_item)
+        v = self._prob_visibles(h,np.ones((nV,)))
+        return v
+
+    def transform(self, x):
+        check_is_fitted(self, "components_")
+        x = check_array(x, accept_sparse='csr', dtype=np.float)
+        mask_item=x.nonzero()[0]
+        v = x[mask_item,:]
+        h = self._prob_hiddens(v)
+        return self._prob_visibles(h, np.ones(X[0].shape[0]))
