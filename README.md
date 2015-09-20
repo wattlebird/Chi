@@ -2,14 +2,17 @@
 
 Future Bangumi Laboratory
 
-## Development log
+## What is it?
 
-31/01/2015 Version 0.2 online.  
-08/02/2015 Switch from global-centered to user-centered.
+_Chi_ is a personal project related to (not quite) famous Chinese bangumi collection site [Bangumi](http://chii.in). It tries to use mature but not state-of-the-art machine learning techniques to discover user preferences and interesting social network phenomena. This project is now maintained by [GeniusIke](http://chii.in/user/wattlebird).
 
-## Wish list
+Demo of this project can be accessed [here](http://ikely.me/chi)
 
-* Preferred item feedback
-* Categorized sync rate
-* Linear model refinement (please be specific)
-* Statistical diagram
+## Project structure
+
+TODO
+
+## Timetable
+
+* Designing RBM based CF to improve current MF rate prediction result
+
