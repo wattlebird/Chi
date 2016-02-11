@@ -1,0 +1,10 @@
+Flask
+Flask-Cache
+Flask-Cors
+Flask-SQLAlchemy
+pylibmc
+mysql
+requests
+scipy
+numpy
+h5py
